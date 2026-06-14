@@ -1,0 +1,182 @@
+# 메인 페이지 — 과천시 전체를 안내하는 허브. 키워드를 몰아넣지 않고 하위로 연결한다.
+from .site import BASE_URL, BRAND, PHONE, PHONE_DISPLAY, DONGS, STATIONS
+from .pricing import PRICING
+
+_dong_cards = "".join(
+    f'<li><a href="/gwacheon/{slug}/">{name}</a></li>' for slug, name in DONGS
+)
+_station_cards = "".join(
+    f'<li><a href="/gwacheon/{slug}/">{name}</a></li>' for slug, name in STATIONS
+)
+
+_JSONLD = f"""<script type="application/ld+json">
+{{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "{BRAND}",
+  "url": "{BASE_URL}/",
+  "telephone": "{PHONE}",
+  "image": "{BASE_URL}/assets/og-image.png",
+  "description": "과천시 전지역 방문 출장마사지·홈타이 예약 안내",
+  "areaServed": {{
+    "@type": "AdministrativeArea",
+    "name": "경기도 과천시"
+  }}
+}}
+</script>
+<script type="application/ld+json">
+{{
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": "과천 출장마사지·과천시 홈타이 지역별 예약 안내",
+  "url": "{BASE_URL}/",
+  "inLanguage": "ko",
+  "description": "과천 출장마사지·홈타이 예약 전 행정동, 역세권, 이용 기준을 정리한 안내 페이지"
+}}
+</script>
+<script type="application/ld+json">
+{{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {{"@type": "ListItem", "position": 1, "name": "홈", "item": "{BASE_URL}/"}}
+  ]
+}}
+</script>
+<script type="application/ld+json">
+{{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {{
+      "@type": "Question",
+      "name": "과천시 전지역 방문이 가능한가요?",
+      "acceptedAnswer": {{
+        "@type": "Answer",
+        "text": "예약 시간과 정확한 위치, 배정 상황에 따라 가능 여부가 달라집니다. 중앙동·갈현동·별양동·부림동·과천동·문원동·원문동 일곱 개 행정동과 주요 역세권 기준으로 안내합니다."
+      }}
+    }},
+    {{
+      "@type": "Question",
+      "name": "과천은 왜 행정구 페이지가 없나요?",
+      "acceptedAnswer": {{
+        "@type": "Answer",
+        "text": "과천시는 고양시나 성남시처럼 행정구로 나뉘는 도시가 아닙니다. 그래서 행정구 단계 없이 과천시 메인에서 바로 일곱 개 행정동과 다섯 개 지하철역으로 연결합니다."
+      }}
+    }},
+    {{
+      "@type": "Question",
+      "name": "과천역이나 정부과천청사역 근처도 가능한가요?",
+      "acceptedAnswer": {{
+        "@type": "Answer",
+        "text": "주요 역세권은 역 상세 페이지에서 인접 생활권과 함께 안내합니다. 정확한 가능 여부는 예약 시 위치를 기준으로 확인합니다."
+      }}
+    }},
+    {{
+      "@type": "Question",
+      "name": "당일 예약도 가능한가요?",
+      "acceptedAnswer": {{
+        "@type": "Answer",
+        "text": "가능할 수 있지만 저녁 시간대와 주말은 문의가 몰릴 수 있어 사전 예약을 권장합니다."
+      }}
+    }}
+  ]
+}}
+</script>
+"""
+
+_HERO = f"""<section class="hero">
+  <div class="hero-inner">
+    <p class="hero-badge">Premium Visiting Spa · 과천시 전지역</p>
+    <h1>과천 출장마사지·홈타이<br>지역별 예약 안내</h1>
+    <p class="hero-lead">샵까지 갈 필요 없이, 계신 곳에서 받는 방문 관리.<br>자택·오피스텔·숙소 어디든 전화 한 통이면 예약이 끝납니다.</p>
+    <div class="hero-actions">
+      <a class="hero-btn primary" href="tel:{PHONE}">📞 {PHONE_DISPLAY}</a>
+      <a class="hero-btn" href="/reservation/">예약 안내 보기</a>
+    </div>
+    <ul class="hero-stats">
+      <li><strong>7개</strong><span>행정동 안내</span></li>
+      <li><strong>5개</strong><span>역세권 안내</span></li>
+      <li><strong>전지역</strong><span>과천시 방문</span></li>
+      <li><strong>24시간</strong><span>예약 상담</span></li>
+    </ul>
+  </div>
+</section>
+"""
+
+_BODY = f"""
+<section id="service">
+<h2>과천시에서 출장마사지를 찾는 이유</h2>
+<p>과천 출장마사지를 찾는 분들은 대부분 지금 계신 곳에서 가까운 방문 가능 지역을 먼저 확인합니다. 과천시는 규모가 큰 도시는 아니지만, 중앙동·별양동·부림동처럼 아파트와 생활 상권이 밀집한 지역이 있고, 과천동·문원동처럼 차량 이동 기준이 중요한 지역도 함께 있습니다. 여기에 과천역, 정부과천청사역, 선바위역, 경마공원역, 대공원역이 4호선으로 이어지기 때문에, 행정동과 지하철역을 함께 정리하는 구조가 실제 이용 흐름에 잘 맞습니다. 이 페이지는 과천시 전체를 설명하는 허브 역할을 하며, 더 자세한 내용은 행정동별·지하철역별 안내 페이지에서 확인하실 수 있습니다. {BRAND}는 예약 확인부터 방문 관리까지 정해진 절차에 따라 진행하므로, 처음 이용하시는 분도 어렵지 않게 예약하실 수 있습니다.</p>
+</section>
+
+<section id="coverage">
+<h2>과천시 전지역 방문 가능 안내</h2>
+<p>과천시 홈타이 안내에서 가장 중요한 부분은 행정구를 억지로 만들지 않는 것입니다. 과천시는 고양시나 성남시처럼 여러 행정구로 나뉘는 도시가 아니기 때문에, 과천시 메인 아래에 바로 행정동 페이지를 배치하는 구조가 자연스럽습니다. 중앙동, 갈현동, 별양동, 부림동, 과천동, 문원동, 원문동을 각각 대표 지역 페이지로 두고, 그 아래에 과천역·정부과천청사역·선바위역·경마공원역·대공원역 다섯 개 역세권 페이지를 연결합니다. 1동·2동처럼 번호가 붙은 행정동이 없는 도시라, 일곱 개 행정동을 그대로 대표 페이지로 만들 수 있다는 점도 과천만의 특징입니다. 방문 가능 여부는 행정 경계가 아니라 실제 위치와 예약 시간으로 판단하므로, 어느 동에 사시든 도로명 주소만 알려주시면 동일한 기준으로 안내해 드립니다.</p>
+</section>
+
+<section id="areas">
+<h2>행정동별 방문 가능 지역 안내</h2>
+<p>행정동별 안내는 과천시 일곱 개 대표 동 기준으로 구성됩니다. 각 페이지에서는 해당 생활권의 특징, 가까운 역세권, 방문 전 확인사항, 예약 가능 시간을 동마다 고유한 내용으로 설명합니다. 중앙동은 과천시청과 중심 생활권을, 갈현동은 지식정보타운 생활권을, 별양동·부림동은 과천역·정부과천청사역 생활권을, 과천동은 선바위·경마공원·대공원으로 이어지는 이동 동선을, 문원동과 원문동은 주거권 특성을 중심으로 안내합니다. 아래에서 거주하시거나 머무시는 동을 선택해 주세요.</p>
+<ul class="card-grid">{_dong_cards}</ul>
+</section>
+
+<section id="stations">
+<h2>지하철역별 출장마사지 지역 안내</h2>
+<p>지하철역별 안내는 과천시를 지나는 4호선 주요 역세권을 기준으로 구성합니다. 과천역 출장마사지, 정부과천청사역 출장마사지처럼 실제 검색어에 가까운 제목을 쓰되, 역 이름만 바꾸고 같은 본문을 반복하지 않도록 각 역 페이지에 가까운 행정동, 이동 동선, 이용 시간대, 예약 전 확인사항을 다르게 담았습니다. 같은 역을 호선별·출구별로 쪼개 여러 페이지를 만들지 않으며, 한 역당 한 페이지만 운영합니다.</p>
+<ul class="card-grid">{_station_cards}</ul>
+</section>
+
+<section id="hometai">
+<h2>과천 홈타이 이용 전 확인할 사항</h2>
+<p>과천 홈타이는 자택, 숙소, 사무실 인근에서 예약 가능 여부를 먼저 확인한 뒤 이용하는 방문형 관리 서비스입니다. 출장마사지와 홈타이는 같은 방문 관리의 다른 이름으로, 오일을 쓰는 전신 관리부터 편한 옷차림으로 받는 지압·스트레칭 구성까지 컨디션에 맞춰 고르실 수 있습니다. 이용 전에는 매트 한 장을 펼 수 있는 공간, 공동현관 출입 방법, 관리에 집중할 수 있는 조용한 환경을 미리 확인해 주세요. 처음이라면 전신 60분 기본 구성으로 시작해 보시고, 자세한 준비 방법은 <a href="/precautions/">이용 전 확인사항</a>과 <a href="/guide/">홈타이 이용 가이드</a>에서 확인하실 수 있습니다.</p>
+</section>
+
+<section id="reserve">
+<h2>예약 전 꼭 확인해야 할 기준</h2>
+<p>예약 전에는 방문 가능 주소, 관리 가능 시간, 추가 이동비, 결제 방식, 취소 기준, 서비스 범위를 먼저 확인해야 합니다. 과천시는 서울과 인접해 있지만 지역 안에서도 역세권, 주거권, 차량 이동 지역의 성격이 다릅니다. 특히 과천동, 문원동, 대공원역 주변은 차량 이동 여부가 중요할 수 있으므로, 예약 시 정확한 위치를 알려주시면 추가 이동비와 가능 시간을 함께 안내해 드립니다. 예약은 위치 확인, 시간 확인, 코스·인원 확인, 방문 가능 여부 안내, 예약 확정의 다섯 단계로 진행되며, 자세한 절차는 <a href="/reservation/">예약 안내</a>에서 확인하실 수 있습니다.</p>
+</section>
+
+<section id="guide">
+<h2>과천 출장마사지 사이트 이용 가이드</h2>
+<p>이 사이트의 문구는 과장된 표현보다 신뢰를 주는 안내형 문장으로 구성했습니다. 불법 서비스, 선정적 표현, 허위 후기, 과도한 할인 문구는 사용하지 않습니다. 메인페이지는 과천시 전체 안내를 맡고, 행정동 페이지는 중앙동·갈현동·별양동·부림동·과천동·문원동·원문동 생활권을, 역세권 페이지는 과천역·정부과천청사역·선바위역·경마공원역·대공원역 주변 이동 동선을 담당합니다. 원하시는 지역이나 역을 고른 뒤 예약 시 위치를 알려주시면, 이용 가능 지역과 예약 절차, 취소 기준, 개인정보 처리 기준을 분명하게 안내해 드립니다.</p>
+</section>
+
+<section id="faq">
+<h2>자주 묻는 질문</h2>
+<div class="faq-item">
+<h3>과천시 전지역 방문이 가능한가요?</h3>
+<p>예약 시간과 정확한 위치, 배정 상황에 따라 가능 여부가 달라집니다. 중앙동·갈현동·별양동·부림동·과천동·문원동·원문동 일곱 개 행정동과 주요 역세권 기준으로 안내합니다.</p>
+</div>
+<div class="faq-item">
+<h3>과천은 왜 행정구 페이지가 없나요?</h3>
+<p>과천시는 고양시나 성남시처럼 행정구로 나뉘는 도시가 아닙니다. 그래서 행정구 단계 없이 과천시 메인에서 바로 일곱 개 행정동과 다섯 개 지하철역으로 연결합니다.</p>
+</div>
+<div class="faq-item">
+<h3>과천역이나 정부과천청사역 근처도 가능한가요?</h3>
+<p>주요 역세권은 역 상세 페이지에서 인접 생활권과 함께 안내합니다. 정확한 가능 여부는 예약 시 위치를 기준으로 확인합니다.</p>
+</div>
+<div class="faq-item">
+<h3>당일 예약도 가능한가요?</h3>
+<p>가능할 수 있지만 저녁 시간대와 주말은 문의가 몰릴 수 있어 사전 예약을 권장합니다. 시간이 정해지는 대로 미리 연락 주시면 대기 없이 받으실 수 있습니다.</p>
+</div>
+</section>
+
+{PRICING}
+<section id="contact" class="cta">
+<h2>예약문의</h2>
+<p>과천시 방문 관리 예약과 상담은 전화로 가장 빠르게 진행됩니다. 위치와 희망 시간을 알려주시면 가능 여부를 바로 확인해 드립니다.</p>
+<a class="cta-phone" href="tel:{PHONE}">{PHONE_DISPLAY}</a>
+</section>
+"""
+
+PAGE = {
+    "path": "",
+    "title": "과천 출장마사지｜과천시 홈타이 지역별 예약 안내",
+    "desc": "과천 출장마사지·홈타이 예약 전 행정동, 역세권, 이용 기준을 정리했습니다.",
+    "h1": "과천 출장마사지·과천시 홈타이 지역별 예약 안내",
+    "body": _BODY,
+    "extra_head": _JSONLD,
+    "breadcrumb": [],
+    "hero": _HERO,
+}
