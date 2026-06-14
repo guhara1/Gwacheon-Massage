@@ -9,7 +9,7 @@ _station_cards = "".join(
     f'<li><a href="/gwacheon/{slug}/">{name}</a></li>' for slug, name in STATIONS
 )
 
-_NAVER = '<meta name="naver-site-verification" content="248a5377290688b0a2503132d4a845888848dd6b" />\n'
+_NAVER = '<meta name="naver-site-verification" content="6a31c8e81ab3439f7838e3036647ef8cff615e44" />\n'
 
 _JSONLD = f"""<script type="application/ld+json">
 {{
