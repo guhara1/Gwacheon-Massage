@@ -53,8 +53,56 @@ python3 build.py
 - 페이지 간 유사도 최소화 (4-gram Jaccard < 0.11 확인)
 - 실제 오프라인 주소가 없으므로 LocalBusiness Schema는 사용하지 않음 (Organization만 사용)
 
-## 배포 전 해야 할 일
+## 색인 가속 (빠른 인덱싱)
 
-1. `content/site.py`의 `BASE_URL`을 실제 도메인으로 변경
-2. `python3 build.py` 재실행 (canonical·sitemap·robots.txt에 반영됨)
-3. Google Search Console·네이버 서치어드바이저에 `sitemap.xml` 제출
+배포 도메인: **https://gwacheon-massage.pages.dev** (Cloudflare Pages)
+
+빌드가 자동 생성하는 색인용 파일:
+
+```
+sitemap.xml                       lastmod·changefreq·priority 포함 (색인 17개)
+rss.xml                           네이버 서치어드바이저 RSS 제출용
+robots.txt                        Yeti(네이버)·Googlebot·bingbot·Daum 명시 + 사이트맵
+37988d0653232654fac055b54bb0c6d9.txt   IndexNow 키 파일 (루트 접근용)
+```
+
+### 1) 검색엔진 등록 (최초 1회)
+
+- **구글 Search Console**: 속성 등록 → `sitemap.xml` 제출
+- **네이버 서치어드바이저**: 사이트 등록(메인에 인증 메타 삽입 완료) → `sitemap.xml` + `rss.xml` 제출
+- **빙 Webmaster Tools**: `sitemap.xml` 제출 (또는 GSC에서 가져오기)
+
+### 2) IndexNow — 글 올릴 때마다 즉시 통보 (빙·네이버·얀덱스)
+
+키 파일이 도메인 루트에서 열려야 합니다: `https://gwacheon-massage.pages.dev/37988d0653232654fac055b54bb0c6d9.txt`
+
+```bash
+python3 build.py
+python3 tools/indexnow.py                 # 사이트맵 전체 통보
+python3 tools/indexnow.py https://gwacheon-massage.pages.dev/gwacheon/...  # 특정 URL만
+```
+
+### 3) 구글 Indexing API — 구글 즉시 통보 (구글은 IndexNow 미참여)
+
+```bash
+pip install -r tools/requirements.txt
+# Google Cloud: Indexing API 사용 설정 → 서비스 계정 JSON 발급
+# Search Console 속성에 서비스 계정 이메일을 '소유자'로 추가
+GOOGLE_APPLICATION_CREDENTIALS=service-account.json python3 tools/google_indexing.py
+```
+
+### 4) 원클릭 통보 (빌드 후 권장 워크플로)
+
+```bash
+python3 build.py && python3 tools/notify_all.py
+```
+
+IndexNow + (자격증명 있으면) 구글 Indexing API를 한 번에 실행합니다.
+※ 예전 sitemap ping(google.com/ping)은 2023년 폐기되어, 위 조합이 현재 가장 빠른 경로입니다.
+
+## 배포 전 체크리스트
+
+1. `content/site.py`의 `BASE_URL` 확인 (현재 pages.dev 도메인 적용됨)
+2. `python3 build.py` 실행 (canonical·sitemap·rss·robots·IndexNow 키에 반영)
+3. 배포 후 IndexNow 키 파일 접속 확인 → `tools/notify_all.py` 실행
+4. 구글/네이버/빙에 사이트맵·RSS 제출

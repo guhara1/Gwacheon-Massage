@@ -12,11 +12,13 @@ import html
 import os
 import re
 import sys
+from datetime import datetime, timezone
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from content import PAGES
-from content.site import (BASE_URL, BRAND, BRAND_MARK, NAV, PHONE, PHONE_DISPLAY)
+from content.site import (BASE_URL, BRAND, BRAND_MARK, INDEXNOW_KEY, NAV,
+                          PHONE, PHONE_DISPLAY, SITE_DESC)
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 MIN_INDEX_CHARS = 2000
@@ -243,6 +245,7 @@ def render_page(page: dict) -> str:
 def build() -> None:
     report = []
     sitemap_urls = []
+    indexed_pages = []  # RSS·IndexNow 용 (url, title, desc)
 
     for page in PAGES:
         path = page["path"]  # "" 또는 "gwacheon/..." 형태
@@ -255,24 +258,71 @@ def build() -> None:
         chars = text_length(page["body"])
         noindex = page.get("noindex", False) or chars < MIN_INDEX_CHARS
         if not noindex:
-            sitemap_urls.append(BASE_URL.rstrip("/") + "/" + path)
+            url = BASE_URL.rstrip("/") + "/" + path
+            sitemap_urls.append(url)
+            indexed_pages.append((url, page["title"], page["desc"]))
         report.append((path or "/", chars, "noindex" if noindex else "index"))
 
-    # sitemap.xml
-    urls = "\n".join(f"  <url><loc>{u}</loc></url>" for u in sitemap_urls)
+    now = datetime.now(timezone.utc)
+    lastmod = now.strftime("%Y-%m-%d")
+    base = BASE_URL.rstrip("/")
+
+    # sitemap.xml (lastmod 포함 — 크롤러 갱신 신호)
+    rows = []
+    for u in sitemap_urls:
+        prio = "1.0" if u == base + "/" else "0.8"
+        freq = "daily" if u == base + "/" else "weekly"
+        rows.append(
+            f"  <url><loc>{u}</loc><lastmod>{lastmod}</lastmod>"
+            f"<changefreq>{freq}</changefreq><priority>{prio}</priority></url>"
+        )
     with open(os.path.join(ROOT, "sitemap.xml"), "w", encoding="utf-8") as f:
         f.write(
             '<?xml version="1.0" encoding="UTF-8"?>\n'
             '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
-            f"{urls}\n</urlset>\n"
+            + "\n".join(rows) + "\n</urlset>\n"
         )
 
-    # robots.txt
+    # rss.xml (네이버 서치어드바이저 RSS 제출용)
+    rfc822 = now.strftime("%a, %d %b %Y %H:%M:%S +0000")
+    items = []
+    for u, title, desc in indexed_pages:
+        items.append(
+            "    <item>\n"
+            f"      <title>{html.escape(title)}</title>\n"
+            f"      <link>{u}</link>\n"
+            f"      <guid isPermaLink=\"true\">{u}</guid>\n"
+            f"      <description>{html.escape(desc)}</description>\n"
+            f"      <pubDate>{rfc822}</pubDate>\n"
+            "    </item>"
+        )
+    with open(os.path.join(ROOT, "rss.xml"), "w", encoding="utf-8") as f:
+        f.write(
+            '<?xml version="1.0" encoding="UTF-8"?>\n'
+            '<rss version="2.0"><channel>\n'
+            f"  <title>{html.escape(BRAND)} — 과천 출장마사지·홈타이</title>\n"
+            f"  <link>{base}/</link>\n"
+            f"  <description>{html.escape(SITE_DESC)}</description>\n"
+            "  <language>ko</language>\n"
+            f"  <lastBuildDate>{rfc822}</lastBuildDate>\n"
+            + "\n".join(items) + "\n"
+            "</channel></rss>\n"
+        )
+
+    # robots.txt (주요 검색봇 명시 + 사이트맵)
     with open(os.path.join(ROOT, "robots.txt"), "w", encoding="utf-8") as f:
         f.write(
             "User-agent: *\nAllow: /\n\n"
-            f"Sitemap: {BASE_URL.rstrip('/')}/sitemap.xml\n"
+            "User-agent: Yeti\nAllow: /\n\n"          # 네이버
+            "User-agent: Googlebot\nAllow: /\n\n"     # 구글
+            "User-agent: bingbot\nAllow: /\n\n"       # 빙
+            "User-agent: Daum\nAllow: /\n\n"          # 다음
+            f"Sitemap: {base}/sitemap.xml\n"
         )
+
+    # IndexNow 키 파일 (루트에서 접근 가능해야 함)
+    with open(os.path.join(ROOT, f"{INDEXNOW_KEY}.txt"), "w", encoding="utf-8") as f:
+        f.write(INDEXNOW_KEY + "\n")
 
     # .nojekyll (GitHub Pages)
     open(os.path.join(ROOT, ".nojekyll"), "w").close()

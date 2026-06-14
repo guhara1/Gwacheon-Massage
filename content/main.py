@@ -9,6 +9,8 @@ _station_cards = "".join(
     f'<li><a href="/gwacheon/{slug}/">{name}</a></li>' for slug, name in STATIONS
 )
 
+_NAVER = '<meta name="naver-site-verification" content="248a5377290688b0a2503132d4a845888848dd6b" />\n'
+
 _JSONLD = f"""<script type="application/ld+json">
 {{
   "@context": "https://schema.org",
@@ -176,7 +178,7 @@ PAGE = {
     "desc": "과천 출장마사지·홈타이 예약 전 행정동, 역세권, 이용 기준을 정리했습니다.",
     "h1": "과천 출장마사지·과천시 홈타이 지역별 예약 안내",
     "body": _BODY,
-    "extra_head": _JSONLD,
+    "extra_head": _NAVER + _JSONLD,
     "breadcrumb": [],
     "hero": _HERO,
 }

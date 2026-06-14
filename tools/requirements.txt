@@ -1,0 +1,4 @@
+# 구글 Indexing API(tools/google_indexing.py) 전용 의존성.
+# IndexNow(tools/indexnow.py)는 표준 라이브러리만 쓰므로 설치가 필요 없습니다.
+google-auth>=2.0
+requests>=2.25

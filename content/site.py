@@ -1,11 +1,18 @@
 # 사이트 공통 설정
 # 배포 도메인 확정 후 BASE_URL 을 실제 도메인으로 변경하세요.
-BASE_URL = "https://www.gwacheon-massage.example.com"
+BASE_URL = "https://gwacheon-massage.pages.dev"
 
 BRAND = "간다GO"
 BRAND_MARK = "G"  # 헤더 브랜드 마크에 들어가는 한 글자
 PHONE = "0508-202-4719"
 PHONE_DISPLAY = "0508-202-4719"
+
+# 사이트 설명 (RSS·메타 공용)
+SITE_DESC = "과천시 전지역 방문 출장마사지·홈타이 예약 안내. 행정동·역세권·이용 기준을 정리했습니다."
+
+# IndexNow 키 — 빌드 시 루트에 {INDEXNOW_KEY}.txt 파일로 생성된다.
+# 빙·네이버·얀덱스에 즉시 색인 통보할 때 사용한다.
+INDEXNOW_KEY = "37988d0653232654fac055b54bb0c6d9"
 
 # 행정동 (7개) — slug, 표시명
 DONGS = [
